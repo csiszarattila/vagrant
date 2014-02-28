@@ -39,6 +39,10 @@ nodejs_packages       = [          # List any global NodeJS packages that you wa
   #"yo",
 ]
 
+virtual_hosts = [
+  "vhost1.dev",
+  "vhost2.dev"
+]
 Vagrant.configure("2") do |config|
 
   # Set server to Ubuntu 12.04
@@ -59,6 +63,16 @@ Vagrant.configure("2") do |config|
             id: "core",
             :nfs => true,
             :mount_options => ['nolock,vers=3,udp,noatime']
+
+  config.hostmanager.enabled = true
+  config.hostmanager.manage_host = true
+  config.hostmanager.ignore_private_ip = false
+  config.hostmanager.include_offline = true
+  config.vm.define 'vaprobash' do |node|
+    node.vm.hostname = 'vaprobash.dev'
+    node.vm.network :private_network, ip: server_ip
+    node.hostmanager.aliases = virtual_hosts
+  end
 
   # If using VirtualBox
   config.vm.provider :virtualbox do |vb|
@@ -112,6 +126,8 @@ Vagrant.configure("2") do |config|
   # Provision Apache Base
   # config.vm.provision "shell", path: "https://raw.github.com/#{github_username}/#{github_repo}/#{github_branch}/scripts/apache.sh", args: server_ip
 
+  config.vm.provision "shell", path: "https://raw.github.com/csiszarattila/vagrant/master/scripts/virtualhosts.sh", args: virtual_hosts.join(" ")
+  
   # Provision HHVM
   # Install HHVM & HHVM-FastCGI
   # config.vm.provision "shell", path: "https://raw.github.com/#{github_username}/#{github_repo}/#{github_branch}/scripts/hhvm.sh"
