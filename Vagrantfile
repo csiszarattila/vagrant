@@ -64,6 +64,11 @@ Vagrant.configure("2") do |config|
             :nfs => true,
             :mount_options => ['nolock,vers=3,udp,noatime']
 
+  # Sync dirs for each virtualhost
+  virtual_hosts.each do |vhost|
+    config.vm.synced_folder ".", "/var/www/#{vhost}"
+  end
+  
   config.hostmanager.enabled = true
   config.hostmanager.manage_host = true
   config.hostmanager.ignore_private_ip = false
